@@ -16,9 +16,11 @@ WORKDIR /web/air
 RUN npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
-FROM golang:alpine AS builder2
+# Use Debian-based builder for ARM64 compatibility
+FROM golang:bullseye AS builder2
 
-RUN apk add --no-cache g++
+# Install build tools
+RUN apt-get update && apt-get install -y g++
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
