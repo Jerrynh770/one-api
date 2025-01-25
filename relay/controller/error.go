@@ -3,12 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
-	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 type GeneralErrorResponse struct {
@@ -57,7 +58,7 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *model.ErrorWit
 		return &model.ErrorWithStatusCode{
 			StatusCode: 500,
 			Error: model.Error{
-				Message: "resp is nil",
+				Message: "AngelRose Dynamic Service temporary unavailable",
 				Type:    "upstream_error",
 				Code:    "bad_response",
 			},
@@ -66,7 +67,7 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *model.ErrorWit
 	ErrorWithStatusCode = &model.ErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
 		Error: model.Error{
-			Message: "",
+			Message: "AngelRose Dynamic Service temporary unavailable",
 			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
 			Param:   strconv.Itoa(resp.StatusCode),
@@ -88,14 +89,7 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *model.ErrorWit
 	if err != nil {
 		return
 	}
-	if errResponse.Error.Message != "" {
-		// OpenAI format error, so we override the default one
-		ErrorWithStatusCode.Error = errResponse.Error
-	} else {
-		ErrorWithStatusCode.Error.Message = errResponse.ToMessage()
-	}
-	if ErrorWithStatusCode.Error.Message == "" {
-		ErrorWithStatusCode.Error.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
-	}
+	// Always use our custom error message regardless of upstream error
+	ErrorWithStatusCode.Error.Message = "AngelRose Dynamic Service temporary unavailable"
 	return
 }
